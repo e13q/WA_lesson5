@@ -1,6 +1,9 @@
+from terminaltables import AsciiTable
+
 import superjob
 import headhunter
-from terminaltables import AsciiTable
+
+
 LANGUAGES = [
     'JavaScript',
     'TypeScript',
