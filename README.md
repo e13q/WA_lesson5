@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 ### Пример вывода скрипта
 
-
+![image](https://github.com/e13q/WA_lesson5/assets/110967581/cb7eed73-c321-46e5-8378-7a1b80c19ce6)
 
 ### Цель проекта
 
