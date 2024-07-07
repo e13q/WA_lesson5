@@ -103,6 +103,6 @@ def get_summury_about_jobs(
     out = {}
     for job in jobs:
         out[job] = get_av_salary(id=area_id, period=period, text_search=job)
-        print('Ожидаем 20 секунд, чтобы не получить бан')
-        time.sleep(20)
+        print('Ожидаем 10 секунд, чтобы не получить бан')
+        time.sleep(10)
     return out

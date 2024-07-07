@@ -26,7 +26,7 @@ def convert_stat_from_dict_to_list(lang: str, statistic: dict):
     return row
 
 
-def print_table(statistic):
+def print_table(statistic, title):
     table_data = [
         [
             'Язык программирования',
@@ -38,7 +38,7 @@ def print_table(statistic):
     for lang in statistic:
         row = convert_stat_from_dict_to_list(lang, statistic)
         table_data.append(row)
-    table = AsciiTable(table_data)
+    table = AsciiTable(table_data, title)
     print(table.table)
 
 
@@ -50,5 +50,5 @@ if __name__ == '__main__':
         LANGUAGES,
         30
     )
-    print_table(statistic_sj)
-    print_table(statistic_hh)
+    print_table(statistic_hh, 'HeadHunter Moscow')
+    print_table(statistic_sj, 'SuperJob Moscow')
