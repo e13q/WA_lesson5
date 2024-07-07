@@ -3,7 +3,7 @@
 
 В данном проекте реализован сбор данных вакансий с помощью API [hh.ru](https://api.hh.ru/) и [superjob.ru](https://api.superjob.ru/)
 
-Данные собираются по 10 языкам программирования для города Москва:  
+Данные собираются для города Москва по 10 языкам программирования:  
 
  * JavaScript
  * TypeScript
@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 ### Пример вывода скрипта
 
-
+![image](https://github.com/e13q/WA_lesson5/assets/110967581/cb7eed73-c321-46e5-8378-7a1b80c19ce6)
 
 ### Цель проекта
 
