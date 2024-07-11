@@ -1,5 +1,8 @@
 from terminaltables import AsciiTable
 
+import os
+from dotenv import load_dotenv
+
 import superjob
 import headhunter
 
@@ -16,6 +19,8 @@ LANGUAGES = [
     'Python',
     'Java'
 ]
+
+PERIOD_DAYS_OF_VACANCIES_HH = 30
 
 
 def convert_stat_from_dict_to_list(lang: str, statistic: dict):
@@ -43,12 +48,18 @@ def print_table(statistic, title):
 
 
 if __name__ == '__main__':
-    statistic_sj = superjob.get_summury_about_jobs('Москва', LANGUAGES)
+    load_dotenv()
+    SUPERJOB_API_KEY = os.getenv('SUPERJOB_API_KEY')
+    statistic_sj = superjob.get_summury_about_jobs(
+        'Москва',
+        LANGUAGES,
+        SUPERJOB_API_KEY
+    )
     statistic_hh = headhunter.get_summury_about_jobs(
         'Россия',
         'Москва',
         LANGUAGES,
-        30
+        PERIOD_DAYS_OF_VACANCIES_HH
     )
-    print_table(statistic_hh, 'HeadHunter Moscow')
     print_table(statistic_sj, 'SuperJob Moscow')
+    print_table(statistic_hh, 'HeadHunter Moscow')

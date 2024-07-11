@@ -1,120 +1,113 @@
 import requests
 
-import os
-from dotenv import load_dotenv
+from utility import get_response_from_api
+from utility import get_vacancy_av_salary
+from utility import get_all_pages_vacancies_av_salary
+
+TEXT_API_ERROR = 'Ошибка получения данных с API superjob.ru'
+
+TEXT_IT_CATALOG_NAME = 'IT, Интернет, связь, телеком'
+
+URL_API_GET_CATALOGUES = 'https://api.superjob.ru/2.0/catalogues/'
+
+URL_API_GET_VACANCIES = 'https://api.superjob.ru/2.0/vacancies/'
+
+COUNT_MAX_VACANCIES_FOR_REQUEST = 100
+
+PAGE_START_NUMBER = 0
 
 
-AUTH_HEADER = {
-    'X-Api-App-Id': os.getenv('SUPERJOB_API_KEY')
-}
-
-
-def get_it_job_key():
-    req = requests.get(
-        'https://api.superjob.ru/2.0/catalogues/',
-        headers=AUTH_HEADER
+def get_it_job_key(auth_header):
+    request = get_response_from_api(
+        url=URL_API_GET_CATALOGUES,
+        headers=auth_header
     )
-    req.raise_for_status()
-    for job in req.json():
-        if job['title_rus'] == 'IT, Интернет, связь, телеком':
-            return job['key']
+    request.raise_for_status()
+    jobs_catalog = request.json()
+    for job in jobs_catalog:
+        if job.get('title_rus') == TEXT_IT_CATALOG_NAME:
+            return job.get('key')
 
 
-def get_vacancies_salary_sum_and_additions(
-        city_name: str,
-        job_key: int,
-        keyword: str = '',
-        current_page: int = 0
-) -> tuple:
-    params_ = {
-        'town': city_name,
-        'catalogues': job_key,
-        'keyword': keyword,
-        'count': 100,
-        'page': current_page
-    }
-    try:
-        response = requests.get(
-            'https://api.superjob.ru/2.0/vacancies/',
-            headers=AUTH_HEADER,
-            params=params_
-        )
-        response.raise_for_status()
-    except ():
-        print('Ошибка получения данных с API superjob.ru')
-        print(response.text)
-        exit()
-    response = response.json()
-    vacancies_count = len(response['objects'])
-    vacancies = response['objects']
-    sum_of_salaries = 0
+def get_pages_count(vacancies_count):
+    pages_count = 1
+    if vacancies_count > COUNT_MAX_VACANCIES_FOR_REQUEST:
+        pages_count = vacancies_count / COUNT_MAX_VACANCIES_FOR_REQUEST
+        if (pages_count) % 1 > 0:
+            pages_count += int(pages_count) + 1
+        else:
+            pages_count += int(pages_count)
+    return pages_count
+
+
+def processing_vacancies(response, params):
+    vacancies = response.get('objects')
+    vacancies_count = len(vacancies)
+    pages_count = get_pages_count(vacancies_count)
+    page_current = params.get('current_page')
+    page_current += 1
+    print(f'{params.get("keyword")}, страница {page_current} / {pages_count}')
     processing_items = 0
-    print(f'{keyword}, страница {current_page+1}')
+    sum_of_salaries = 0
     for vacancy in vacancies:
-        if vacancy['currency'] != 'rub':
-            continue
-        if vacancy['payment_from'] != 0 and vacancy['payment_to'] != 0:
-            sum_of_salaries += int(
-                vacancy['payment_from']+vacancy['payment_to']/2)
-            processing_items += 1
-        if vacancy['payment_from'] == 0 and vacancy['payment_to'] != 0:
-            sum_of_salaries += int(vacancy['payment_from'] * 1.2)
-            processing_items += 1
-        if vacancy['payment_from'] != 0 and vacancy['payment_to'] == 0:
-            sum_of_salaries += int(vacancy['payment_to'] * 0.8)
-            processing_items += 1
-    return sum_of_salaries, processing_items, vacancies_count
-
-
-def get_av_salary(city_name: str, job_key: int, keyword: str = ''):
-    current_page = 0
-    (
+        salary_currency = vacancy.get('currency')
+        salary_from = vacancy.get('payment_from')
+        salary_to = vacancy.get('payment_to')
+        if 'rub' in salary_currency and (salary_from or salary_to):
+            vacancy_av_salary = get_vacancy_av_salary(salary_from, salary_to)
+            if vacancy_av_salary:
+                processing_items += 1
+                sum_of_salaries += vacancy_av_salary
+    return (
+        vacancies_count,
         sum_of_salaries,
         processing_items,
-        vacancies_count
-    ) = get_vacancies_salary_sum_and_additions(
-            city_name=city_name,
-            job_key=job_key,
-            keyword=keyword,
+        page_current,
+        pages_count
+    )
+
+
+def get_vacancies_av_salary_page(params, page_current, auth_header):
+    params.update({'current_page': page_current})
+    response = get_response_from_api(
+            url=URL_API_GET_VACANCIES,
+            params=params,
+            headers=auth_header
         )
-    pages_count = 0
-    if vacancies_count > 100:
-        pages_count = int(vacancies_count / 100)
-        if (vacancies_count/100) % 1 > 0:
-            pages_count += 1
-    if pages_count > current_page + 1:
-        for current_page in range(1, pages_count):
-            (
-                new_sum,
-                new_items,
-                _,
-                _
-            ) = get_vacancies_salary_sum_and_additions(
-                    city_name=city_name,
-                    job_key=job_key,
-                    keyword=keyword,
-                    current_page=current_page
-                )
-            sum_of_salaries += new_sum
-            processing_items += new_items
-    if processing_items == 0:
-        average_salary = None
-    else:
-        average_salary = int(sum_of_salaries / processing_items)
-    return {
-        'vacancies_found': vacancies_count,
-        "vacancies_processed": processing_items,
-        "average_salary": average_salary
-    }
+    response = response.json()
+    return processing_vacancies(response, params)
 
 
 def get_summury_about_jobs(
         city_name: str,
-        jobs: dict
+        jobs: list,
+        superjob_api_key: str
 ):
-    load_dotenv()
-    it_job_key = get_it_job_key(),
-    out = {}
+    auth_header = {
+        'X-Api-App-Id': superjob_api_key
+    }
+    try:
+        it_job_key = get_it_job_key(auth_header)
+    except (requests.exceptions.RequestException):
+        print(TEXT_API_ERROR)
+        exit()
+    params = {
+            'town': city_name,
+            'catalogues': it_job_key,
+            'count': COUNT_MAX_VACANCIES_FOR_REQUEST,
+            'page': PAGE_START_NUMBER
+        }
+    average_salary_info = {}
     for job in jobs:
-        out[job] = get_av_salary(city_name, it_job_key, job)
-    return out
+        params.update({'keyword': job})
+        try:
+            all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
+                    params,
+                    get_vacancies_av_salary_page,
+                    auth_header
+                )
+        except (requests.exceptions.RequestException):
+            print(TEXT_API_ERROR)
+            exit()
+        average_salary_info.update({job: all_pages_vacancies_av_salary})
+    return average_salary_info

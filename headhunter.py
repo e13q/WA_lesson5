@@ -1,108 +1,107 @@
+import time
+
 import requests
 
-import time
+from utility import get_response_from_api
+from utility import get_all_pages_vacancies_av_salary
+from utility import get_vacancy_av_salary
+
+TEXT_API_ERROR = 'Ошибка получения данных с API hh.ru'
+
+URL_API_GET_AREAS = 'https://api.hh.ru/areas'
+
+URL_API_GET_VACANCIES = 'https://api.hh.ru/vacancies'
+
+COUNT_MAX_VACANCIES_FOR_REQUEST = 100
+
+PAGE_START_NUMBER = 0
+
+SECONDS_WAITING_TIME = 10
 
 
 def get_area_id(country_name: str, city_name: str) -> int:
-    f = requests.get('https://api.hh.ru/areas')
-    for country in f.json():
-        if country_name == country['name']:
-            for city in country['areas']:
-                if city_name == city['name']:
-                    return city['id']
-
-
-def get_vacancies_salary_sum_and_additions(
-        id: int,
-        period: int = None,
-        text_search: str = '',
-        current_page: int = 0
-) -> tuple:
-    params_ = {
-        'area':  id,
-        'period': period,
-        'text': text_search,
-        'per_page': 100,
-        'page': current_page
-    }
-    try:
-        response = requests.get('https://api.hh.ru/vacancies', params=params_)
-        response.raise_for_status()
-    except ():
-        print('Ошибка получения данных с API hh.ru')
-        print(response.text)
-        exit()
+    response = get_response_from_api(
+        URL_API_GET_AREAS
+    )
     response = response.json()
-    pages_count = response['pages']
-    vacancies_count = response['found']
-    vacancies = response['items']
-    sum_of_salaries = 0
+    for country in response:
+        if country_name == country.get('name'):
+            for city in country.get('areas'):
+                if city_name == city.get('name'):
+                    return city.get('id')
+
+
+def processing_vacancies(response, params):
+    vacancies = response.get('items')
+    vacancies_count = response.get('found')
+    pages_count = response.get('pages')
+    page_current = params.get('page')
+    page_current += 1
+    print(f'{params.get("text")}, страница {page_current} / {pages_count}')
     processing_items = 0
-    print(f'{text_search}, страница {current_page+1} из {pages_count}')
+    sum_of_salaries = 0
     for vacancy in vacancies:
-        salary = vacancy['salary']
-        if not salary or salary['currency'] != 'RUR':
-            continue
-        if salary['from'] and salary['to']:
-            sum_of_salaries += int(salary['from'] + salary['to']) / 2
-            processing_items += 1
-        if salary['from'] and not salary['to']:
-            sum_of_salaries += int(salary['from']) * 1.2
-            processing_items += 1
-        if not salary['from'] and salary['to']:
-            sum_of_salaries += int(salary['to']) * 0.8
-            processing_items += 1
-    return sum_of_salaries, processing_items, pages_count, vacancies_count
-
-
-def get_av_salary(id: int, period: int = None, text_search: str = ''):
-    current_page = 0
-    (
+        salary = vacancy.get('salary')
+        if salary:
+            salary_currency = salary.get('currency')
+            salary_from = salary.get('from')
+            salary_to = salary.get('to')
+            if ('RUR' in salary_currency) and (salary_from or salary_to):
+                vacancy_av_salary = get_vacancy_av_salary(
+                    salary_from,
+                    salary_to
+                )
+                if vacancy_av_salary:
+                    processing_items += 1
+                    sum_of_salaries += vacancy_av_salary
+    return (
+        vacancies_count,
         sum_of_salaries,
         processing_items,
-        pages_count,
-        vacancies_count
-    ) = get_vacancies_salary_sum_and_additions(
-            id=id,
-            period=period,
-            text_search=text_search
+        page_current,
+        pages_count
+    )
+
+
+def get_vacancies_av_salary_page(params, page_current, *args):
+    params.update({'page': page_current})
+    response = get_response_from_api(
+            url=URL_API_GET_VACANCIES,
+            params=params
         )
-    if pages_count > current_page + 1:
-        for current_page in range(1, pages_count):
-            (
-                new_sum,
-                new_items,
-                _,
-                _
-            ) = get_vacancies_salary_sum_and_additions(
-                    id=id,
-                    period=period,
-                    text_search=text_search,
-                    current_page=current_page
-                )
-            sum_of_salaries += new_sum
-            processing_items += new_items
-    if processing_items == 0:
-        average_salary = None
-    else:
-        average_salary = int(sum_of_salaries / processing_items)
-    return {
-        'vacancies_found': vacancies_count,
-        "vacancies_processed": processing_items,
-        "average_salary": average_salary
-    }
+    response = response.json()
+    return processing_vacancies(response, params)
 
 
 def get_summury_about_jobs(
         country_name: str,
         city_name: str,
-        jobs: dict,
+        jobs: list,
         period: int = None
 ):
-    area_id = get_area_id(country_name, city_name)
-    out = {}
+    try:
+        area_id = get_area_id(country_name, city_name)
+    except (requests.exceptions.RequestException):
+        print(TEXT_API_ERROR)
+        exit()
+    params = {
+        'area':  area_id,
+        'period': period,
+        'per_page': COUNT_MAX_VACANCIES_FOR_REQUEST,
+        'page': PAGE_START_NUMBER
+    }
+    average_salary_info = {}
     for job in jobs:
-        out[job] = get_av_salary(id=area_id, period=period, text_search=job)
-        print('Ожидаем 10 секунд, чтобы не получить бан')
-        time.sleep(10)
-    return out
+        params.update({'text': job})
+        try:
+            all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
+                    params,
+                    get_vacancies_av_salary_page
+                )
+        except (requests.exceptions.RequestException):
+            print(TEXT_API_ERROR)
+            exit()
+        average_salary_info.update({job: all_pages_vacancies_av_salary})
+        print(f'Ожидаем {SECONDS_WAITING_TIME} секунд, чтобы не получить бан')
+        time.sleep(SECONDS_WAITING_TIME)
+    return average_salary_info
