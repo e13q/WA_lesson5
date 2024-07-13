@@ -74,7 +74,7 @@ def get_vacancies_av_salary_page(params, page_current, auth_header):
             headers=auth_header
         )
     response = response.json()
-    return processing_vacancies(response, params)
+    return response
 
 
 def get_summury_about_jobs(
@@ -96,6 +96,7 @@ def get_summury_about_jobs(
             all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
                     params,
                     get_vacancies_av_salary_page,
+                    processing_vacancies,
                     auth_header
                 )
         except (requests.exceptions.RequestException):

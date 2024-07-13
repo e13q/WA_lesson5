@@ -70,7 +70,7 @@ def get_vacancies_av_salary_page(params, page_current, *args):
             params=params
         )
     response = response.json()
-    return processing_vacancies(response, params)
+    return response
 
 
 def get_summury_about_jobs(
@@ -90,7 +90,8 @@ def get_summury_about_jobs(
         try:
             all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
                     params,
-                    get_vacancies_av_salary_page
+                    get_vacancies_av_salary_page,
+                    processing_vacancies
                 )
         except (requests.exceptions.RequestException):
             print(TEXT_API_ERROR)
