@@ -38,7 +38,7 @@ def process_vacancies(response, params):
     page_current = params.get('page')
     page_current += 1
     print(f'{params.get("text")}, страница {page_current} / {pages_count}')
-    processing_items = 0
+    processed_vacancies = 0
     sum_of_salaries = 0
     for vacancy in vacancies:
         salary = vacancy.get('salary')
@@ -52,12 +52,12 @@ def process_vacancies(response, params):
                     salary_to
                 )
                 if vacancy_av_salary:
-                    processing_items += 1
+                    processed_vacancies += 1
                     sum_of_salaries += vacancy_av_salary
     return (
         vacancies_count,
         sum_of_salaries,
-        processing_items,
+        processed_vacancies,
         page_current,
         pages_count
     )
