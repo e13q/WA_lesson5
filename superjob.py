@@ -39,7 +39,7 @@ def get_pages_count(vacancies_count):
     return pages_count
 
 
-def processing_vacancies(response, params):
+def process_vacancies(response, params):
     vacancies = response.get('objects')
     vacancies_count = len(vacancies)
     pages_count = get_pages_count(vacancies_count)
@@ -96,7 +96,7 @@ def get_summury_about_jobs(
             all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
                     params,
                     get_vacancies_av_salary_page,
-                    processing_vacancies,
+                    process_vacancies,
                     auth_header
                 )
         except (requests.exceptions.RequestException):

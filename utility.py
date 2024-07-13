@@ -46,7 +46,7 @@ def get_summary_job_average_salary(
 def get_all_pages_vacancies_av_salary(
         params,
         get_vacancies_for_page,
-        processing_vacancies,
+        process_vacancies,
         auth_header=None
 ):
     sum_of_salaries = 0
@@ -66,7 +66,7 @@ def get_all_pages_vacancies_av_salary(
             processing_items_page,
             page_current,
             pages_count
-        ) = processing_vacancies(response, params)
+        ) = process_vacancies(response, params)
         sum_of_salaries += sum_of_salaries_page
         processing_items += processing_items_page
     summary_job_average_salary = get_summary_job_average_salary(

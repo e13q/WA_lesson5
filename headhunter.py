@@ -31,7 +31,7 @@ def get_area_id(country_name: str, city_name: str) -> int:
                     return city.get('id')
 
 
-def processing_vacancies(response, params):
+def process_vacancies(response, params):
     vacancies = response.get('items')
     vacancies_count = response.get('found')
     pages_count = response.get('pages')
@@ -91,7 +91,7 @@ def get_summury_about_jobs(
             all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
                     params,
                     get_vacancies_av_salary_page,
-                    processing_vacancies
+                    process_vacancies
                 )
         except (requests.exceptions.RequestException):
             print(TEXT_API_ERROR)
