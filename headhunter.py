@@ -84,7 +84,7 @@ def get_summury_about_jobs(
         'per_page': COUNT_MAX_VACANCIES_FOR_REQUEST,
         'page': PAGE_START_NUMBER
     }
-    average_salary_info = {}
+    average_jobs_salary = {}
     for job in jobs:
         params.update({'text': job})
         try:
@@ -95,7 +95,7 @@ def get_summury_about_jobs(
         except (requests.exceptions.RequestException):
             print(TEXT_API_ERROR)
             exit()
-        average_salary_info.update({job: all_pages_vacancies_av_salary})
+        average_jobs_salary.update({job: all_pages_vacancies_av_salary})
         print(f'Ожидаем {SECONDS_WAITING_TIME} секунд, чтобы не получить бан')
         time.sleep(SECONDS_WAITING_TIME)
-    return average_salary_info
+    return average_jobs_salary
