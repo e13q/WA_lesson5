@@ -49,11 +49,11 @@ def print_table(statistic, title):
 
 if __name__ == '__main__':
     load_dotenv()
-    SUPERJOB_API_KEY = os.getenv('SUPERJOB_API_KEY')
+    superjob_api_key = os.getenv('SUPERJOB_API_KEY')
     statistic_sj = superjob.get_summury_about_jobs(
         'Москва',
         LANGUAGES,
-        SUPERJOB_API_KEY
+        superjob_api_key
     )
     statistic_hh = headhunter.get_summury_about_jobs(
         'Россия',
