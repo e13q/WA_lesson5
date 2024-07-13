@@ -64,7 +64,7 @@ def processing_vacancies(response, params):
 
 
 def get_vacancies_av_salary_page(params, page_current, *args):
-    params.update({'page': page_current})
+    params['page'] = page_current
     response = get_response_from_api(
             url=URL_API_GET_VACANCIES,
             params=params
@@ -86,7 +86,7 @@ def get_summury_about_jobs(
     }
     average_jobs_salary = {}
     for job in jobs:
-        params.update({'text': job})
+        params['text'] = job
         try:
             all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
                     params,
@@ -95,7 +95,7 @@ def get_summury_about_jobs(
         except (requests.exceptions.RequestException):
             print(TEXT_API_ERROR)
             exit()
-        average_jobs_salary.update({job: all_pages_vacancies_av_salary})
+        average_jobs_salary[job] = all_pages_vacancies_av_salary
         print(f'Ожидаем {SECONDS_WAITING_TIME} секунд, чтобы не получить бан')
         time.sleep(SECONDS_WAITING_TIME)
     return average_jobs_salary
