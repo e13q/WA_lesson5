@@ -22,7 +22,6 @@ def get_it_job_key(auth_header):
         url=URL_API_GET_CATALOGUES,
         headers=auth_header
     )
-    request.raise_for_status()
     jobs_catalog = request.json()
     for job in jobs_catalog:
         if job.get('title_rus') == TEXT_IT_CATALOG_NAME:
