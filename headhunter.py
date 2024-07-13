@@ -74,16 +74,10 @@ def get_vacancies_av_salary_page(params, page_current, *args):
 
 
 def get_summury_about_jobs(
-        country_name: str,
-        city_name: str,
+        area_id: int,
         jobs: list,
         period: int = None
 ):
-    try:
-        area_id = get_area_id(country_name, city_name)
-    except (requests.exceptions.RequestException):
-        print(TEXT_API_ERROR)
-        exit()
     params = {
         'area':  area_id,
         'period': period,

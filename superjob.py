@@ -79,17 +79,10 @@ def get_vacancies_av_salary_page(params, page_current, auth_header):
 
 def get_summury_about_jobs(
         city_name: str,
+        it_job_key: int,
         jobs: list,
-        superjob_api_key: str
+        auth_header: dict
 ):
-    auth_header = {
-        'X-Api-App-Id': superjob_api_key
-    }
-    try:
-        it_job_key = get_it_job_key(auth_header)
-    except (requests.exceptions.RequestException):
-        print(TEXT_API_ERROR)
-        exit()
     params = {
             'town': city_name,
             'catalogues': it_job_key,

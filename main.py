@@ -2,6 +2,7 @@ from terminaltables import AsciiTable
 
 import os
 from dotenv import load_dotenv
+import requests
 
 import superjob
 import headhunter
@@ -49,15 +50,27 @@ def print_table(statistic, title):
 
 if __name__ == '__main__':
     load_dotenv()
-    superjob_api_key = os.getenv('SUPERJOB_API_KEY')
+    auth_header = {
+        'X-Api-App-Id': os.getenv('SUPERJOB_API_KEY')
+    }   
+    try:
+        it_job_key = superjob.get_it_job_key(auth_header)
+    except (requests.exceptions.RequestException):
+        print(superjob.TEXT_API_ERROR)
+        exit()
     statistic_sj = superjob.get_summury_about_jobs(
         'Москва',
+        it_job_key,
         LANGUAGES,
-        superjob_api_key
+        auth_header
     )
+    try:
+        area_id = headhunter.get_area_id('Россия', 'Москва')
+    except (requests.exceptions.RequestException):
+        print(headhunter.TEXT_API_ERROR)
+        exit()
     statistic_hh = headhunter.get_summury_about_jobs(
-        'Россия',
-        'Москва',
+        area_id,
         LANGUAGES,
         PERIOD_DAYS_OF_VACANCIES_HH
     )
