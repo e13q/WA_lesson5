@@ -66,7 +66,7 @@ def process_vacancies(response, params):
     )
 
 
-def get_vacancies_av_salary_page(params, page_current, auth_header):
+def get_vacancies_page(params, page_current, auth_header):
     params['current_page'] = page_current
     response = get_response_from_api(
             url=URL_API_GET_VACANCIES,
@@ -95,7 +95,7 @@ def get_summury_about_jobs(
         try:
             all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
                     params,
-                    get_vacancies_av_salary_page,
+                    get_vacancies_page,
                     process_vacancies,
                     auth_header
                 )
