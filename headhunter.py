@@ -50,7 +50,7 @@ def process_vacancies(vacancies):
     )
 
 
-def get_vacancies_page(params, page_current, *args):
+def get_vacancies_page(params, page_current, auth_header=None):
     params['page'] = page_current
     response = get_response_from_api(
             url=URL_API_GET_VACANCIES,
