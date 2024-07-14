@@ -27,22 +27,6 @@ def get_response_from_api(
     return response
 
 
-def get_summary_job_average_salary(
-        vacancies_count,
-        sum_of_salaries,
-        processing_items
-):
-    if not processing_items:
-        average_salary = None
-    else:
-        average_salary = int(sum_of_salaries / processing_items)
-    return {
-        'vacancies_found': vacancies_count,
-        "vacancies_processed": processing_items,
-        "average_salary": average_salary
-    }
-
-
 def get_all_pages_vacancies_av_salary(
         params,
         get_vacancies_for_page,
@@ -68,9 +52,12 @@ def get_all_pages_vacancies_av_salary(
         )
         sum_of_salaries += sum_of_salaries_page
         processed_vacancies += processed_vacancies_page
-    summary_job_average_salary = get_summary_job_average_salary(
-        total_vacancies,
-        sum_of_salaries,
-        processed_vacancies
-    )
-    return summary_job_average_salary
+    if not processed_vacancies:
+        average_salary = None
+    else:
+        average_salary = int(sum_of_salaries / processed_vacancies)
+    return {
+        'vacancies_found': total_vacancies,
+        "vacancies_processed": processed_vacancies,
+        "average_salary": average_salary
+    }
