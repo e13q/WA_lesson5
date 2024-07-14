@@ -45,7 +45,6 @@ def process_vacancies(response, params):
     pages_count = get_pages_count(vacancies_count)
     page_current = params.get('current_page')
     page_current += 1
-    print(f'{params.get("keyword")}, страница {page_current} / {pages_count}')
     processed_vacancies = 0
     sum_of_salaries = 0
     for vacancy in vacancies:

@@ -52,7 +52,8 @@ if __name__ == '__main__':
     load_dotenv()
     auth_header = {
         'X-Api-App-Id': os.getenv('SUPERJOB_API_KEY')
-    }   
+    }
+    print('Собираем статистику от superjob.ru')
     try:
         it_job_key = superjob.get_it_job_key(auth_header)
     except (requests.exceptions.RequestException):
@@ -64,6 +65,7 @@ if __name__ == '__main__':
         LANGUAGES,
         auth_header
     )
+    print('Собираем статистику от hh.ru')
     try:
         area_id = headhunter.get_area_id('Россия', 'Москва')
     except (requests.exceptions.RequestException):
