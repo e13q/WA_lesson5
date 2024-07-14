@@ -31,11 +31,12 @@ def process_vacancies(vacancies):
         salary_currency = vacancy.get('currency')
         salary_from = vacancy.get('payment_from')
         salary_to = vacancy.get('payment_to')
-        if 'rub' in salary_currency and (salary_from or salary_to):
-            vacancy_av_salary = get_vacancy_av_salary(salary_from, salary_to)
-            if vacancy_av_salary:
-                processed_vacancies += 1
-                sum_of_salaries += vacancy_av_salary
+        if not ('rub' in salary_currency and (salary_from or salary_to)):
+            continue
+        vacancy_av_salary = get_vacancy_av_salary(salary_from, salary_to)
+        if vacancy_av_salary:
+            processed_vacancies += 1
+            sum_of_salaries += vacancy_av_salary
     return (
         sum_of_salaries,
         processed_vacancies

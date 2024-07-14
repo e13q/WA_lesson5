@@ -32,18 +32,20 @@ def process_vacancies(vacancies):
     sum_of_salaries = 0
     for vacancy in vacancies:
         salary = vacancy.get('salary')
-        if salary:
-            salary_currency = salary.get('currency')
-            salary_from = salary.get('from')
-            salary_to = salary.get('to')
-            if ('RUR' in salary_currency) and (salary_from or salary_to):
-                vacancy_av_salary = get_vacancy_av_salary(
-                    salary_from,
-                    salary_to
-                )
-                if vacancy_av_salary:
-                    processed_vacancies += 1
-                    sum_of_salaries += vacancy_av_salary
+        if not salary:
+            continue
+        salary_currency = salary.get('currency')
+        salary_from = salary.get('from')
+        salary_to = salary.get('to')
+        if not (('RUR' in salary_currency) and (salary_from or salary_to)):
+            continue
+        vacancy_av_salary = get_vacancy_av_salary(
+            salary_from,
+            salary_to
+        )
+        if vacancy_av_salary:
+            processed_vacancies += 1
+            sum_of_salaries += vacancy_av_salary
     return (
         sum_of_salaries,
         processed_vacancies
