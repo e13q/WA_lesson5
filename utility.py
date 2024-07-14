@@ -51,24 +51,25 @@ def get_all_pages_vacancies_av_salary(
 ):
     sum_of_salaries = 0
     processed_vacancies = 0
-    vacancies_count = 0
     page_current = 0
     pages_count = 1
+    total_vacancies = 0
     while page_current < pages_count:
-        vacancies, page_current, pages_count = get_vacancies_for_page(
-            params,
-            page_current,
-            auth_header
-        )
-        vacancies_count += len(vacancies)
         (
-            sum_of_salaries_page,
-            processed_vacancies_page
-         ) = process_vacancies(vacancies)
+            vacancies_from_page,
+            total_vacancies,
+            page_current,
+            pages_count
+        ) = get_vacancies_for_page(
+            params, page_current, auth_header
+        )
+        sum_of_salaries_page, processed_vacancies_page = process_vacancies(
+            vacancies_from_page
+        )
         sum_of_salaries += sum_of_salaries_page
         processed_vacancies += processed_vacancies_page
     summary_job_average_salary = get_summary_job_average_salary(
-        vacancies_count,
+        total_vacancies,
         sum_of_salaries,
         processed_vacancies
     )

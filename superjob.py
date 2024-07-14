@@ -28,17 +28,6 @@ def get_it_job_key(auth_header):
             return job.get('key')
 
 
-def get_pages_count(vacancies_count):
-    pages_count = 1
-    if vacancies_count > COUNT_MAX_VACANCIES_FOR_REQUEST:
-        pages_count = vacancies_count / COUNT_MAX_VACANCIES_FOR_REQUEST
-        if (pages_count) % 1 > 0:
-            pages_count += int(pages_count) + 1
-        else:
-            pages_count += int(pages_count)
-    return pages_count
-
-
 def process_vacancies(vacancies):
     processed_vacancies = 0
     sum_of_salaries = 0
@@ -66,11 +55,13 @@ def get_vacancies_page(params, page_current, auth_header):
         )
     response = response.json()
     vacancies = response.get('objects')
-    vacancies_count = len(vacancies)
-    pages_count = get_pages_count(vacancies_count)
+    total_vacancies = response.get('total')
     page_current = params.get('current_page')
     page_current += 1
-    return vacancies, page_current, pages_count
+    pages_count = page_current
+    if response['more']:
+        pages_count = page_current + 1
+    return vacancies, total_vacancies, page_current, pages_count
 
 
 def get_summury_about_jobs(

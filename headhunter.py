@@ -62,10 +62,11 @@ def get_vacancies_page(params, page_current, *args):
         )
     response = response.json()
     vacancies = response.get('items')
+    total_vacancies = response.get('found')
     pages_count = response.get('pages')
     page_current = params.get('page')
     page_current += 1
-    return vacancies, page_current, pages_count
+    return vacancies, total_vacancies, page_current, pages_count
 
 
 def get_summury_about_jobs(
