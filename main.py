@@ -2,7 +2,6 @@ from terminaltables import AsciiTable
 
 import os
 from dotenv import load_dotenv
-import requests
 
 import superjob
 import headhunter
@@ -54,11 +53,7 @@ if __name__ == '__main__':
         'X-Api-App-Id': os.getenv('SUPERJOB_API_KEY')
     }
     print('Собираем статистику от superjob.ru')
-    try:
-        it_job_key = superjob.get_it_job_key(auth_header)
-    except (requests.exceptions.RequestException):
-        print(superjob.TEXT_API_ERROR)
-        exit()
+    it_job_key = superjob.get_it_job_key(auth_header)
     statistic_sj = superjob.get_summury_about_jobs(
         'Москва',
         it_job_key,
@@ -66,11 +61,7 @@ if __name__ == '__main__':
         auth_header
     )
     print('Собираем статистику от hh.ru')
-    try:
-        area_id = headhunter.get_area_id('Россия', 'Москва')
-    except (requests.exceptions.RequestException):
-        print(headhunter.TEXT_API_ERROR)
-        exit()
+    area_id = headhunter.get_area_id('Россия', 'Москва')
     statistic_hh = headhunter.get_summury_about_jobs(
         area_id,
         LANGUAGES,

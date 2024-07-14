@@ -1,12 +1,8 @@
 import time
 
-import requests
-
 from utility import get_response_from_api
 from utility import get_all_pages_vacancies_av_salary
 from utility import get_vacancy_av_salary
-
-TEXT_API_ERROR = 'Ошибка получения данных с API hh.ru'
 
 URL_API_GET_AREAS = 'https://api.hh.ru/areas'
 
@@ -83,15 +79,11 @@ def get_summury_about_jobs(
     average_jobs_salary = {}
     for job in jobs:
         params['text'] = job
-        try:
-            all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
-                    params,
-                    get_vacancies_page,
-                    process_vacancies
-                )
-        except (requests.exceptions.RequestException):
-            print(TEXT_API_ERROR)
-            exit()
+        all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
+                params,
+                get_vacancies_page,
+                process_vacancies
+            )
         average_jobs_salary[job] = all_pages_vacancies_av_salary
         print(f'Ожидаем {SECONDS_WAITING_TIME} секунд, чтобы не получить бан')
         time.sleep(SECONDS_WAITING_TIME)

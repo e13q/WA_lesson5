@@ -1,10 +1,6 @@
-import requests
-
 from utility import get_response_from_api
 from utility import get_vacancy_av_salary
 from utility import get_all_pages_vacancies_av_salary
-
-TEXT_API_ERROR = 'Ошибка получения данных с API superjob.ru'
 
 TEXT_IT_CATALOG_NAME = 'IT, Интернет, связь, телеком'
 
@@ -79,15 +75,11 @@ def get_summury_about_jobs(
     average_jobs_salary = {}
     for job in jobs:
         params['keyword'] = job
-        try:
-            all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
-                    params,
-                    get_vacancies_page,
-                    process_vacancies,
-                    auth_header
-                )
-        except (requests.exceptions.RequestException):
-            print(TEXT_API_ERROR)
-            exit()
+        all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
+                params,
+                get_vacancies_page,
+                process_vacancies,
+                auth_header
+            )
         average_jobs_salary[job] = all_pages_vacancies_av_salary
     return average_jobs_salary
