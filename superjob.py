@@ -39,12 +39,7 @@ def get_pages_count(vacancies_count):
     return pages_count
 
 
-def process_vacancies(response, params):
-    vacancies = response.get('objects')
-    vacancies_count = len(vacancies)
-    pages_count = get_pages_count(vacancies_count)
-    page_current = params.get('current_page')
-    page_current += 1
+def process_vacancies(vacancies):
     processed_vacancies = 0
     sum_of_salaries = 0
     for vacancy in vacancies:
@@ -57,11 +52,8 @@ def process_vacancies(response, params):
                 processed_vacancies += 1
                 sum_of_salaries += vacancy_av_salary
     return (
-        vacancies_count,
         sum_of_salaries,
-        processed_vacancies,
-        page_current,
-        pages_count
+        processed_vacancies
     )
 
 
@@ -73,7 +65,12 @@ def get_vacancies_page(params, page_current, auth_header):
             headers=auth_header
         )
     response = response.json()
-    return response
+    vacancies = response.get('objects')
+    vacancies_count = len(vacancies)
+    pages_count = get_pages_count(vacancies_count)
+    page_current = params.get('current_page')
+    page_current += 1
+    return vacancies, page_current, pages_count
 
 
 def get_summury_about_jobs(

@@ -31,12 +31,7 @@ def get_area_id(country_name: str, city_name: str) -> int:
                     return city.get('id')
 
 
-def process_vacancies(response, params):
-    vacancies = response.get('items')
-    vacancies_count = response.get('found')
-    pages_count = response.get('pages')
-    page_current = params.get('page')
-    page_current += 1
+def process_vacancies(vacancies):
     processed_vacancies = 0
     sum_of_salaries = 0
     for vacancy in vacancies:
@@ -54,22 +49,23 @@ def process_vacancies(response, params):
                     processed_vacancies += 1
                     sum_of_salaries += vacancy_av_salary
     return (
-        vacancies_count,
         sum_of_salaries,
-        processed_vacancies,
-        page_current,
-        pages_count
+        processed_vacancies
     )
 
 
-def get_vacancies_av_salary_page(params, page_current, *args):
+def get_vacancies_page(params, page_current, *args):
     params['page'] = page_current
     response = get_response_from_api(
             url=URL_API_GET_VACANCIES,
             params=params
         )
     response = response.json()
-    return response
+    vacancies = response.get('items')
+    pages_count = response.get('pages')
+    page_current = params.get('page')
+    page_current += 1
+    return vacancies, page_current, pages_count
 
 
 def get_summury_about_jobs(
@@ -89,7 +85,7 @@ def get_summury_about_jobs(
         try:
             all_pages_vacancies_av_salary = get_all_pages_vacancies_av_salary(
                     params,
-                    get_vacancies_av_salary_page,
+                    get_vacancies_page,
                     process_vacancies
                 )
         except (requests.exceptions.RequestException):
