@@ -53,12 +53,10 @@ def get_vacancies_page(params, page_current, auth_header):
     response = response.json()
     vacancies = response.get('objects')
     total_vacancies = response.get('total')
-    page_current = params.get('current_page')
-    page_current += 1
     pages_count = page_current
     if response['more']:
         pages_count = page_current + 1
-    return vacancies, total_vacancies, page_current, pages_count
+    return vacancies, total_vacancies, pages_count
 
 
 def get_summury_about_jobs(

@@ -42,7 +42,6 @@ def get_all_pages_vacancies_av_salary(
         (
             vacancies_from_page,
             total_vacancies,
-            page_current,
             pages_count
         ) = get_vacancies_for_page(
             params, page_current, auth_header
@@ -52,6 +51,7 @@ def get_all_pages_vacancies_av_salary(
         )
         sum_of_salaries += sum_of_salaries_page
         processed_vacancies += processed_vacancies_page
+        page_current += 1
     if not processed_vacancies:
         average_salary = None
     else:
